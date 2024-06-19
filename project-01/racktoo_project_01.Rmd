@@ -1,0 +1,155 @@
+---
+title: "Mini-Project 01"
+author: "Kevin Racktoo `kracktoo6581@floridapoly.edu`"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+---
+
+# Data Visualization Project 01
+In recent years, gasoline internal-combustion engine (ICE) vehicles have seen a significant overall improvement in fuel efficiency. Manufacturers of these vehicles have had to combat the lower refueling costs and greater environmental-friendliness of hybrid and electric vehicles by funneling funds into the research and development of engines that operate using less fuel. At the same time, however, there is always high demand for vehicles that generate more power than is strictly necessary to ensure that a vehicle is just as enjoyable to drive as it is functional. This means that the manufacturers have had to somehow make engines use less fuel while also increasing their power output. Increasing the power delivered by an engine most commonly means increasing its size, and subsequently, the amount of gasoline needed, as higher-volume pistons require more gasoline to move and in turn, turn the crank at greater speeds. This raises several questions:
+
+1. How true is the perception that the fuel efficiency of cars has markedly increased within the last couple of decades?
+2. If fuel efficiency is increasing, does this mean that engines are much smaller than they were before?
+3. If not by reducing engine displacement, how are vehicles more fuel efficient while also generating more power?
+
+To answer these questions we can analyze a set of data pertaining to the cars manufactured in the last few decades, their rated fuel efficiencies, and their engine displacements. The data being studied is accessed as a CSV file [here](https://raw.githubusercontent.com/reisanar/datasets/master/fuel.csv). We will use the R language, ggplot2 library, and dplyr toolset to visualize trends in the data and draw conclusions.
+
+### Making use of the data
+
+We will start out by performing the necessary operations to import the data from the linked file and converting it to a more usable format. For manipulation of the data, we'll need the *tidyverse* library and the *dplyr* toolset it contains, so we also import the library as shown.
+
+```{r cars}
+fuel_data <- read.csv("data/fuel.csv")
+library(tidyverse)
+library(RColorBrewer)
+```
+
+To get a better idea of the structure of the data within the dataframe, we cause use the *str()* function.
+
+```{r}
+str(fuel_data)
+```
+
+Most of the information contained within the dataframe is unrelated to the problem at hand. We must therefore extract the data that is relevant to us. This is done by piping the data from the *fuel_data* variable into the required ggplot function using the *%>%* operator.
+
+Each row appears to describe a car made in a specific year, along with numerable characteristics of that car.As we are examining only "pure" gasoline internal-combustion engine vehicles, we want to remove any hybrid, flex-fuel, and electric vehicles. This information is stored in the "engine_descriptor" column of the dataframe. The *filter()* function can help us permot only rows with values in the "engine_descriptor" field that we are interested in. There is another problem, however, as the strings in those fields are not always consistent in their formatting even if they contain the same information. We can use keywords to identify the unwanted rows. The function *grepl()* searches the strings in the given column and return **TRUE** if the string is contained. Since we want only rows that *do not* contain the keywords describing hybrid, flex-fuel, and electric vehicles, we add a *!* to the front of the function to filter only rows that *don't* contain those keywords.
+
+Next, we want to eliminate irrelevant columns. Viewing the above summary of the data contained in the dataframe, we identify the columns of interest, and can use *select()* to choose only those columns for preservation.
+
+Finally, since we will be visualizing the data as it relates to changes over time, we'll convert the *year* column to a factor using *mutate()*, as there is a limited selection of years and many cars that were produced in each year. The processed dataframe will be stored in a variable for internal-combustion engines titled *ice*.
+
+```{r}
+ice <- fuel_data %>%
+  filter(!grepl('HEV', engine_descriptor) &
+           !grepl('FFV', engine_descriptor) &
+           !grepl('PHEV', engine_descriptor) &
+           !grepl('Electricity', fuel_type)) %>%
+  # Only keep relevant columns:
+  select(year, make, model, transmission, engine_cylinders, engine_displacement, turbocharger, supercharger, combined_mpg_ft1) %>%
+  # Convert year to factor.
+  mutate(year = factor(year))
+```
+
+Now we want to summarize the information that we'll plot. Viewing the data, we are interested in forced-induction systems as it relates to fuel efficiency, so we will track the number of cars produced each year with either a turbocharger or supercharger. The *ice* dataframe is piped into *mutate()* to create a new column *fi* that stores *TRUE* true if the car in that row uses forced induction. We then want to group the data by year, which is performed using *group()*. Finally, we summarize the data using the aptly-named *summarize()* function, also creating a new column through that summary that counts the number of engines each year that use forced induction, with the *sum()* function as an argument.
+
+```{r}
+# Collect data on cars each year with forced induction systems
+fi_over_time <- ice %>%
+  # Create a new column for if the car has either a turbo OR super
+  mutate(fi = !is.na(turbocharger) | !is.na(supercharger)) %>%
+  group_by(year) %>%
+  # Count the number of cars each year that are not naturally aspirated
+  summarize(fi_count = sum(fi, na.rm = TRUE))
+```
+
+We also want to plot average engine displacements, year-by-year. To gather information on engine displacement as a function of time, we must average all of the engine displacment values within each year. This can be done by creating a new column in *summarize()* that averages engine displacements with *mean()*.
+
+```{r}
+# Collect data on the average engine displacement over time
+avg_disp_over_time <- ice %>%
+  group_by(year) %>%
+  summarize(avg_disp = mean(engine_displacement, na.rm = TRUE))
+```
+
+We will, of course, want to visualize average MPG ratings for each year. A similar set of operations is performed on the *ice* dataframe to obtain fuel economies over time. We *group()* by year, then create a column in the new dataframe containing the *mean()* of the combined fuel economies that year.
+
+```{r}
+# Collect data on the average fuel efficiency of cars each year
+avg_mpg_over_time <- ice %>%
+  group_by(year) %>%
+  summarize(avg_mpg = mean(combined_mpg_ft1, na.rm = TRUE))
+```
+
+### Generating plots
+
+Now that we have decided what our plots should contain and summarized the relevant data, we can actually produce those plots. As we're visualizing changes over time, a line plot will be the most useful, with points drawn on the line to indicate where each value falls per year. We will start by showing average fuel efficiency ratings over time. The plot is created using *ggplot()* and the *avg_mpg_over_time* dataframe created above is input as the data to be used. Aesthetically, we want the year at which vehicles were manufactuered to show on the x-axis and the average MPG rating on the y-axis, so these are contained in the *aes()* function which is then used as a parameter of the *ggplot()* function. We specify a *geom_line()* function for a line plot, *geom_point()* to draw points on that plot, and customize the appearance of the plot using *theme_minimal()* for theming and *labs()* for labels. There will be many labels along the x-axis for each year contained in the dataset, so we want to shrink the font of the text used. This is done using the *theme()* function, setting the *axis.text.x* value to *element_text()* size 5.
+
+```{r}
+# Retrieve 3 colors from from set 2
+colorPalette <- brewer.pal(n = 3, name = "Set2")
+
+ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_mpg, group = 1)) +
+  geom_line(color = colorPalette[1]) +
+  geom_point(color = colorPalette[1]) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 5)) +
+  labs(title="Average MPG per year", x = "Year", y = "Combined MPG")
+```
+
+The same process can be used to show average engine displacements over time.
+
+```{r}
+ggplot(data = avg_disp_over_time, aes(x = year, y = avg_disp, group = 1)) +
+  geom_line(color = colorPalette[2]) +
+  geom_point(color = colorPalette[2]) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 5)) +
+  labs(title="Average engine displacement per year", x = "Year", y = "Engine displacement (L)")
+
+```
+
+The popularity of forced-induction engines year-by-year is also plotted with the same technique.
+
+```{r}
+fi_plot <- ggplot(data = fi_over_time, aes(x = year, y = fi_count, group = 1)) +
+  geom_line(color = colorPalette[3]) +
+  geom_point(color = colorPalette[3]) +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 5)) +
+  labs(title="Cars using forced induction per year", x = "Year", y = "Number of cars")
+
+print(fi_plot)
+```
+
+### Analysis
+
+The plots tell a story about the development of gasoline vehicles in response to world events and public sentiments. In the *Average MPG per year* plot, the first question posited is answered, as fuel efficiency has indeed seen massive improvements in the last decade. We can overlay the average displacement plot upon the MPG plot to visualize a relationship between the two:
+
+```{r}
+combined_mpg_and_disp <- ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_mpg, group = 1)) +
+  geom_line(color = colorPalette[1]) +
+  theme_void() +
+  theme(axis.text.x = element_text(size = 5),
+        plot.caption = element_text(hjust = 0.5)) +
+  labs(title="Combined MPG and Displacement", x = "Year", y = "", caption = "The green line shows MPG over time while orange shows displacement.
+       Note that the displacement-versus-time plot has been scaled to allow it to share a y-axis with the fuel efficiency (MPG) plot.
+       This is not intended to mislead by relating specific quantity changes in one dataset to the next,
+       but to emphasize proportionalities of changes and years when trends began and ended.") +
+  geom_line(data = avg_disp_over_time, aes(x = year, y = avg_disp * 6), color = colorPalette[2], group = 2) # Scale displacement by 6 to use the same y-axis value mapping
+print(combined_mpg_and_disp)
+```
+
+In this plot, we see that engine displacement was typically inversely proportional to fuel efficiency. During the '80s and '90s, for instance, a growing desire for faster, more powerful vehicles saw a significant decline in MPG ratings while larger, higher-displacement engines were produced. This trend continued until the middle of the '90s, when interest started to grow in efficient, low-cost vehicles. 
+
+Around the start of the millennium, however, car companies began to realize the advantages of using forced-induction engines. Namely, that higher-displacement engines coupled with turbochargers or superchargers could produce staggering power outputs, with only minimal decreases in fuel efficiency.
+
+Then, right as car companies were forced to offer more economical options following the 2008 financial crisis, average displacement declined rapidly. Focus was suddenly on producing functional, efficient vehicles that could be refueled less frequently. Simultaneously, growing environmental awareness meant that gas-guzzlers were no longer in style, as more fuel consumed meant more pollutants generated. Furthermore, growing hesitation towards reliance on foreign countries for gasoline discouraged sales of inefficient vehicles.
+
+Another interesting plot point in this story can be made about the last decade in the combined plot shown above: while average engine displacement decreased rapidly, the rate of growth in fuel efficiency grew even more quickly. The inverse relationship between fuel efficiency and MPG were no longer 1:1, as the average displacement in 2015 was similar to that in 1990, yet the average fuel efficiency was nearly double. Here is where our remaining plot comes into play; the increase in popularity of forced-induction systems did not die down alongside high-displacement engines. As average displacement fell rapidly, turbos and supers became ubiquitous, with companies using forced induction to make up for what would have been power loss from reduced engine size. A 2.4-liter engine can now achieve upwards of 30 miles per gallon instead of 18-20 by incorporating a turbocharger. A 3.0-liter engine that made 200 horsepower in the '90s while getting 16 MPGs can make 400 horsepower now while getting 23 combined MPG. The age-old adage that "there's no replacement for displacement" is no longer true, as forced induction has decoupled engine displacement from power and fuel efficiency.
+
+### Principles of data visualization
+
+Using ggplot and dplyr, a collection of raw data was reformatted and visualized with relative ease. The principles of data visualization were used to create graphics that demonstrate clear relationships. Plots utilized minimal styling, entirely 2-dimensional representation, and clear labeling to make the visualizations as useful as possible. Perception was considered when employing RColorBrewer to select colors that would clearly distinguish one plot from the next, and repetition of those colors in the individual and combined plots relate the like datasets. The combined plot intentionally removes y-axis labels and grid lines to deter the viewer from perceiving alignment of the plots to the grid lines as equating the units of the two quantities.

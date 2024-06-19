@@ -1,0 +1,39 @@
+---
+title: "Mini-Project 02"
+author: "Kevin Racktoo `kracktoo6581@floridapoly.edu`"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+---
+
+# Data Visualization Project 02
+# Introduction
+This mini-project provided several sets of unrelated data for exploration of the tools and principles discussed thus far throughout the course. The "babynames", "Florida_Lakes", and "atl-weather" datasets were studied to extract trends and determine relationships that may exist within the data. Visualizations were created to demonstrate the capacity for interactivity, spatial presentation, and modeling using the tools provided. After the process used for manipulating and visualizing the data are described, the findings regarding each set of data are presented in the section below corresponding to that dataset.
+
+# Setup
+As some of the libraries used were shared by the different sections, all of the libraries will be imported before beginning.
+```{r}
+library(tidyverse) # For ggplot2 and dplyr
+library(stringr) # For string manipulation
+library(plotly) # For interactive plots
+library(sf) # For shapefiles
+library(foreign) # For dbf files
+library(broom) # For cleaning up the model created
+```
+
+## Interactive visualization
+To explore a set of data through an interactive visualization, the "babynames.rds" file was used. The data in this file listed the most popular names of babies born in the United States since 1880, including the number of babies in each year with each name. I chose to examine the frequency of names ending in the letter "a" across both sexes over time, as it's a widespread assumption that names ending in that letter tend to be female. I questioned whether this was as much assumption as it was perception, and the data presented seemed to offer a conclusive answer. To examine the data in the described manner, the data file was first read into R using readRDS().
+```{r}
+babyNames <- readRDS("data/babynames.rds")
+```
+
+The data was then cleaned by removing all names that did not end in the letter "a".
+```{r}
+aNames <- babyNames %>%
+  filter(str_ends(name, "a"))
+```
+
+We want a dataframe that provides the number of babies of each sex whose names ended in "a" for each year.
+To obtain it, we can use dplyr to make two separate dataframes where one contains female "a" names for each year and the other contains male "a" names for each year. Then, we can use inner_join() to join them together by year.
