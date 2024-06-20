@@ -15,7 +15,7 @@ This mini-project provided several sets of unrelated data for exploration of the
 
 # Setup
 As some of the libraries used were shared by the different sections, all of the libraries will be imported before beginning.
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse) # For ggplot2 and dplyr
 library(stringr) # For string manipulation
 library(plotly) # For interactive plots
@@ -68,7 +68,7 @@ Hovering over any location on the combined plot gives a number of the total numb
 The second set of data chosen included shapefiles for all of the lakes in the state of Florida. Additionally, the dataset maps each lake to the county to which it is associated. Given this information, I wanted to create an interactive visual for the simplified identification of lakes belonging to each county.
 
 The data for shapefiles and county information were provided in two different files. There were likewise read into distinct variables.
-```{r}
+```{r, warning=FALSE, message=FALSE}
 lakeShapes <- read_sf("data/Florida_Lakes/Florida_Lakes.shp")
 lakes <- read.dbf("data/Florida_lakes/Florida_Lakes.dbf")
 ```
@@ -120,6 +120,10 @@ summary(uvModel)
 ```
 Here, we can see in the "Estimate" column that for every 1% change in cloud cover, the model predicts that the UV index will decrease by -0.0635. In other words, the UV index decreases by a value of 1 for approximately every 15.74% of cloud cover increase.
 
+The accuracy of the model throughout the entire range of cloud cover percentages makes this model very useful. Determining the ultraviolet index on any given day requires specialized hardware and is a task best completed by individuals trained in the usage of such equipment. Cloud cover, on the other hand, is fairly easy to estimate just by looking at the sky, and is widely discussed in daily weather reports. Using that information on cloud cover and the model produced, one can approximate the UV index that can be expected of any given day. People can therefore predict how much ultraviolet radiation they will be exposed to, making informed decisions regarding whether to be out in the sun or apply sunscreen.
+
+The values predicted by the model could be confirmed by collecting experimental data when the cloud cover value is known. Assumptions made include the accuracy of the cloud cover percentage provided by whatever weather source is used, and the accuracy of the sensors used for determining the UV index value.
+
 # Conclusion
 The charts that I had envisioned for each set of data proved to be entirely possible using the fairly intuitive tools provided by the Tidyverse, Plotly, and a handful of other common libraries. The most difficult part of the visualization was more to do with the formatting of the data into a usable form before it could be plotted, in every instance. For example, the "foreign" library had to be used to change the file containing Florida lakes county information to a usable set of counties.
 
@@ -127,5 +131,6 @@ Each plot generated could be used to tell any number of stories, though more con
 
 The principles of data visualization were applied in a number of ways throughout this assignment. The foremost of these is the reduction in unnecessary elements that do not directly pertain to the subject of study. All of the datasets used contained far more than just the information being plotted, and it would certainly have increased the visual intrigue of each plot to incorporate some of those pieces of information. However, the specific purposes of each plot, as well as its legibility, would likely have suffered from the extraneous elements. Other methods of applying data visualization principles included the use of color. The baby names plot used colors commonly associated with males and females to add to the intuitive perception of what each curve represents. All three plots utilized similar styling (minimal and light-colored) to preserve uniformity throughout the document.Applying the same colored fill to lakes of the same counties in the final plot utilized the automatic groupings of colors that human brains tend to perceive.
 
+Revisions to this mini-project took into account the feedback that was received upon original submission. The significance of constructing a model for the cloud cover versus UV index visualization was elaborated upon, as that model can be very important to those who are particularly susceptible to skin disease and ultraviolet damage. Clarification was offered as to what assumptions must be made and what experimental data must be collected to verify the accuracy of the model's predicted values.
 
 

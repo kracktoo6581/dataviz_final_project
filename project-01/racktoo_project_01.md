@@ -192,7 +192,7 @@ As average displacement fell rapidly, turbos and supers became ubiquitous, with 
 
 Using ggplot and dplyr, a collection of raw data was reformatted and visualized with relative ease. The principles of data visualization were used to create graphics that demonstrate clear relationships. Plots utilized minimal styling, entirely 2-dimensional representation, and clear labeling to make the visualizations as useful as possible. Perception was considered when employing RColorBrewer to select colors that would clearly distinguish one plot from the next, and repetition of those colors in the individual and combined plots relate the like datasets. The combined plot intentionally removes y-axis labels and grid lines to deter the viewer from perceiving alignment of the plots to the grid lines as equating the units of the two quantities.
 
-In re-using the original analysis for a final project, best practices were employed to complete revisions. Changes included:
+In re-using the original analysis for a final project, best practices were employed to complete revisions. The provided feedback directed those revisions. Changes included:
 
 - Storing plots to variables to more easily call them in the analysis section
 - Plotting data closer to the relevant sections in the analysis portion
