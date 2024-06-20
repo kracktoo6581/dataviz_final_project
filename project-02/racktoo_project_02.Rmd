@@ -9,6 +9,7 @@ output:
 ---
 
 # Data Visualization Project 02
+
 # Introduction
 This mini-project provided several sets of unrelated data for exploration of the tools and principles discussed thus far throughout the course. The "babynames", "Florida_Lakes", and "atl-weather" datasets were studied to extract trends and determine relationships that may exist within the data. Visualizations were created to demonstrate the capacity for interactivity, spatial presentation, and modeling using the tools provided. After the process used for manipulating and visualizing the data are described, the findings regarding each set of data are presented in the section below corresponding to that dataset.
 
@@ -37,3 +38,94 @@ aNames <- babyNames %>%
 
 We want a dataframe that provides the number of babies of each sex whose names ended in "a" for each year.
 To obtain it, we can use dplyr to make two separate dataframes where one contains female "a" names for each year and the other contains male "a" names for each year. Then, we can use inner_join() to join them together by year.
+```{r}
+aNamesSummarizedMale <- babyNames %>%
+  filter(str_ends(name, "a") & sex == 'M') %>%
+  group_by(year) %>%
+  summarize(aCountMale = sum(n))
+
+aNamesSummarizedFemale <- babyNames %>%
+  filter(str_ends(name, "a") & sex == 'F') %>%
+  group_by(year) %>%
+  summarize(aCountFemale = sum(n))
+
+aNamesSummarized <- inner_join(aNamesSummarizedFemale, aNamesSummarizedMale, by = "year") 
+```
+
+Converting the ggplot element to a plotly visual allows the user to more directly compare the two sets of data through interaction. The plot can be set to compare the two plots at a given x-position on hover by default using the layout() layer as shown below.
+```{r}
+aNamesPlot <- ggplot(data = aNamesSummarized) +
+  geom_line(mapping = aes(x = year, y = aCountMale), color = "cyan") +
+  geom_line(mapping = aes(x = year, y = aCountFemale), color = "pink") +
+  labs(title = "Baby names ending in 'a' by year", x = "Year", y = "Number of babies with 'a' names") +
+  theme_minimal()
+ggplotly(aNamesPlot) %>%
+  layout(hovermode = "x unified")
+```
+Hovering over any location on the combined plot gives a number of the total number of babies born per sex whose names ended in the letter "a" for that year. As a result, I have to concede that names ending in that letter do in fact almost always indicate a female individual. The data shows that male names ending in "a" were all but nonexistent up until only the last few decades. Even then, there have been relatively few, and it has remained a small number. Also interesting, however, is that female names ending in that letter were similarly uncommon. There appears to have been a significant increase in such female names in the last century, and the number has since fluctuated wildly, peaking in 2006 and remaining relatively constant, since. 
+
+## Spatial (and interactive!) visualization
+The second set of data chosen included shapefiles for all of the lakes in the state of Florida. Additionally, the dataset maps each lake to the county to which it is associated. Given this information, I wanted to create an interactive visual for the simplified identification of lakes belonging to each county.
+
+The data for shapefiles and county information were provided in two different files. There were likewise read into distinct variables.
+```{r}
+lakeShapes <- read_sf("data/Florida_Lakes/Florida_Lakes.shp")
+lakes <- read.dbf("data/Florida_lakes/Florida_Lakes.dbf")
+```
+
+As the two sets of data were initially distinct, they were combined into a singular dataframe for simplicity. This was done using the left_join() layer and the dplyr pipe operator. Dataframes were joined by the "OBJECTID" values as these were common to both dataframes and associated shapes with counties.
+```{r}
+lakeMap <- lakeShapes %>%
+  left_join(lakes, by = "OBJECTID")
+```
+
+ggplot() is used to generate a plot, while the geom_sf() layer allows the use of shape information in the plot. This was to be visualized using the Mercator projection through coord_sf(). Basic styling was applied, making the outlines of each lake minimal so as to not crowd the plot, and discrete colors were applied to distinguish counties. Finally, the plot was made interactive using ggplotly(), This interactivity would include the ability to zoom into any area, and individual selection of counties through the generated legend.
+```{r}
+lakePlot <- ggplot() +
+  geom_sf(data = lakeShapes, aes(fill = COUNTY), color = "black", size= 0.1) +
+  coord_sf(crs = "+proj=merc") +
+  scale_fill_discrete() +
+  theme_light() +
+  labs(title = "Florida lakes by county")
+
+ggplotly(lakePlot)
+```
+
+## Model visualization
+The final set of data described the weather conditions in Atlanta, sampled every day in 2019. Upon examining the contained information, I was reminded by the inclusion of "uvIndex" and "cloudCover" values of what I had heard on the weather report as a child: it is possible to experience sunburn and other ultraviolet damage even when the sun is obscured by clouds. The data provided would allow me to draw a quantifiable conclusion regarding the rate at which ultraviolet exposure decreases as cloud cover increases. I sought to use a plot to visualize the relationship and a linear model to see how well it would hold up across the entire spectrum of cloud cover values.
+
+Data was first read in from the CSV file that contained the weather information.
+```{r}
+atlWeather <- read_csv("data/atl-weather.csv")
+```
+
+A linear model was then fit to the data using the lm() function.
+```{r}
+uvModel <- lm(cloudCover ~ uvIndex, data = atlWeather)
+```
+
+The data was then visualized as a scatterplot, also drawing the same linear model representation as a layer upon the scatterplot.
+```{r}
+ggplot(data = atlWeather, mapping = aes(x = cloudCover, y = uvIndex)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y ~ x") +
+  theme_minimal() +
+  labs(x = "Cloud cover (%)", y = "Recorded UV index")
+
+```
+
+To view the coefficients of the model created, the summary() function was used.
+```{r}
+summary(uvModel)
+```
+Here, we can see in the "Estimate" column that for every 1% change in cloud cover, the model predicts that the UV index will decrease by -0.0635. In other words, the UV index decreases by a value of 1 for approximately every 15.74% of cloud cover increase.
+
+# Conclusion
+The charts that I had envisioned for each set of data proved to be entirely possible using the fairly intuitive tools provided by the Tidyverse, Plotly, and a handful of other common libraries. The most difficult part of the visualization was more to do with the formatting of the data into a usable form before it could be plotted, in every instance. For example, the "foreign" library had to be used to change the file containing Florida lakes county information to a usable set of counties.
+
+Each plot generated could be used to tell any number of stories, though more context would be required for more convincing arguments about any. The baby names plot would likely tell an interesting story about the social and linguistic trends that caused the wave-like variations in "a"-name popularity over time. The growing exchange of cultures (and subsequently, their common child names) may very well have influenced the meteoric rise of female "a"-names in the mid 20th century. The Florida lakes plot was more intended as an aid for visualizing the areas and quantities of lakes in various Florida counties. It therefore does not tell a specific story, but could certainly be used, for instance, to depict the odd county borders resulting from gerrymandering. The UV-index vs. cloud cover plot and model can be used to tell a story as a precautionary tale for those who are particularly at risk of skin cancer. It is common that individuals feel entirely safe to be outdoors for extended periods of time just because they do not feel the intense heat of direct sunlight, but the plot shows that the UV index readings do not fall nearly as quickly as one might expect with an increase in cloud cover. The model shows that it is still quite likely for the UV index to be in the "moderate" range (between 3 and 5) even with 100% cloud coverage.
+
+The principles of data visualization were applied in a number of ways throughout this assignment. The foremost of these is the reduction in unnecessary elements that do not directly pertain to the subject of study. All of the datasets used contained far more than just the information being plotted, and it would certainly have increased the visual intrigue of each plot to incorporate some of those pieces of information. However, the specific purposes of each plot, as well as its legibility, would likely have suffered from the extraneous elements. Other methods of applying data visualization principles included the use of color. The baby names plot used colors commonly associated with males and females to add to the intuitive perception of what each curve represents. All three plots utilized similar styling (minimal and light-colored) to preserve uniformity throughout the document.Applying the same colored fill to lakes of the same counties in the final plot utilized the automatic groupings of colors that human brains tend to perceive.
+
+
+

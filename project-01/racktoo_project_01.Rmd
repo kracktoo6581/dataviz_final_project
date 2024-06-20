@@ -21,16 +21,10 @@ To answer these questions we can analyze a set of data pertaining to the cars ma
 
 We will start out by performing the necessary operations to import the data from the linked file and converting it to a more usable format. For manipulation of the data, we'll need the *tidyverse* library and the *dplyr* toolset it contains, so we also import the library as shown.
 
-```{r cars}
+```{r cars, message=FALSE, warning=FALSE}
 fuel_data <- read.csv("data/fuel.csv")
 library(tidyverse)
 library(RColorBrewer)
-```
-
-To get a better idea of the structure of the data within the dataframe, we cause use the *str()* function.
-
-```{r}
-str(fuel_data)
 ```
 
 Most of the information contained within the dataframe is unrelated to the problem at hand. We must therefore extract the data that is relevant to us. This is done by piping the data from the *fuel_data* variable into the required ggplot function using the *%>%* operator.
@@ -91,24 +85,28 @@ Now that we have decided what our plots should contain and summarized the releva
 # Retrieve 3 colors from from set 2
 colorPalette <- brewer.pal(n = 3, name = "Set2")
 
-ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_mpg, group = 1)) +
+mpgPlot <- ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_mpg, group = 1)) +
   geom_line(color = colorPalette[1]) +
   geom_point(color = colorPalette[1]) +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5)) +
-  labs(title="Average MPG per year", x = "Year", y = "Combined MPG")
+  theme(axis.text.x = element_text(size = 5),
+        plot.caption = element_text(hjust = 0.5)) +
+  labs(title="Average MPG per year", x = "Year", y = "Combined MPG",
+       caption = "Average fuel efficiency of vehicles produced in the United States each year.")
+
+
 ```
 
 The same process can be used to show average engine displacements over time.
 
 ```{r}
-ggplot(data = avg_disp_over_time, aes(x = year, y = avg_disp, group = 1)) +
+dispPlot <- ggplot(data = avg_disp_over_time, aes(x = year, y = avg_disp, group = 1)) +
   geom_line(color = colorPalette[2]) +
   geom_point(color = colorPalette[2]) +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5)) +
+  theme(axis.text.x = element_text(size = 5),
+        plot.caption = element_text(hjust = 0.5)) +
   labs(title="Average engine displacement per year", x = "Year", y = "Engine displacement (L)")
-
 ```
 
 The popularity of forced-induction engines year-by-year is also plotted with the same technique.
@@ -120,14 +118,8 @@ fi_plot <- ggplot(data = fi_over_time, aes(x = year, y = fi_count, group = 1)) +
   theme_light() +
   theme(axis.text.x = element_text(size = 5)) +
   labs(title="Cars using forced induction per year", x = "Year", y = "Number of cars")
-
-print(fi_plot)
 ```
-
-### Analysis
-
-The plots tell a story about the development of gasoline vehicles in response to world events and public sentiments. In the *Average MPG per year* plot, the first question posited is answered, as fuel efficiency has indeed seen massive improvements in the last decade. We can overlay the average displacement plot upon the MPG plot to visualize a relationship between the two:
-
+And now for a combined MPG and engine displacement over time plot:
 ```{r}
 combined_mpg_and_disp <- ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_mpg, group = 1)) +
   geom_line(color = colorPalette[1]) +
@@ -139,17 +131,53 @@ combined_mpg_and_disp <- ggplot(data = avg_mpg_over_time, aes(x = year, y = avg_
        This is not intended to mislead by relating specific quantity changes in one dataset to the next,
        but to emphasize proportionalities of changes and years when trends began and ended.") +
   geom_line(data = avg_disp_over_time, aes(x = year, y = avg_disp * 6), color = colorPalette[2], group = 2) # Scale displacement by 6 to use the same y-axis value mapping
+```
+
+### Analysis
+
+The plots tell a story about the development of gasoline vehicles in response to world events and public sentiments. In the *Average MPG per year* plot, the first question posited is answered, as fuel efficiency has indeed seen massive improvements in the last decade. 
+```{r}
+plot(mpgPlot)
+```
+
+We can overlay the average displacement plot upon the MPG plot to visualize a relationship between the two:
+
+```{r}
 print(combined_mpg_and_disp)
 ```
 
-In this plot, we see that engine displacement was typically inversely proportional to fuel efficiency. During the '80s and '90s, for instance, a growing desire for faster, more powerful vehicles saw a significant decline in MPG ratings while larger, higher-displacement engines were produced. This trend continued until the middle of the '90s, when interest started to grow in efficient, low-cost vehicles. 
+
+In this plot, we see that [engine displacement was typically inversely proportional to fuel efficiency](https://themotorguy.com/the-importance-of-engine-displacement-in-vehicle-performance/). During the '80s and '90s, for instance, a growing desire for faster, more powerful vehicles saw a significant decline in MPG ratings while larger, higher-displacement engines were produced. 
+
+```{r}
+plot(dispPlot)
+```
+
+The products of that era are some of [the most legendary of performance automobiles to this day](https://www.hotcars.com/some-of-the-best-sports-cars-from-the-1990s/). This trend continued until the middle of the '90s, when fuel efficiency regulations from [the 1975 Energy Policy and Conservation Act began to finally see enforcement](https://www.ucsusa.org/resources/brief-history-us-fuel-efficiency).
 
 Around the start of the millennium, however, car companies began to realize the advantages of using forced-induction engines. Namely, that higher-displacement engines coupled with turbochargers or superchargers could produce staggering power outputs, with only minimal decreases in fuel efficiency.
 
-Then, right as car companies were forced to offer more economical options following the 2008 financial crisis, average displacement declined rapidly. Focus was suddenly on producing functional, efficient vehicles that could be refueled less frequently. Simultaneously, growing environmental awareness meant that gas-guzzlers were no longer in style, as more fuel consumed meant more pollutants generated. Furthermore, growing hesitation towards reliance on foreign countries for gasoline discouraged sales of inefficient vehicles.
+Then, right as car companies were forced to offer [more economical options following the 2008 financial crisis](https://research.stlouisfed.org/publications/economic-synopses/2019/07/05/auto-sales-and-the-2007-09-recession), average displacement declined rapidly. Focus was suddenly on producing functional, efficient vehicles that could be refueled less frequently. Simultaneously, growing environmental awareness meant that gas-guzzlers were no longer in style, as more fuel consumed meant more pollutants generated. Furthermore, growing hesitation towards reliance on foreign countries for gasoline discouraged sales of inefficient vehicles.
 
-Another interesting plot point in this story can be made about the last decade in the combined plot shown above: while average engine displacement decreased rapidly, the rate of growth in fuel efficiency grew even more quickly. The inverse relationship between fuel efficiency and MPG were no longer 1:1, as the average displacement in 2015 was similar to that in 1990, yet the average fuel efficiency was nearly double. Here is where our remaining plot comes into play; the increase in popularity of forced-induction systems did not die down alongside high-displacement engines. As average displacement fell rapidly, turbos and supers became ubiquitous, with companies using forced induction to make up for what would have been power loss from reduced engine size. A 2.4-liter engine can now achieve upwards of 30 miles per gallon instead of 18-20 by incorporating a turbocharger. A 3.0-liter engine that made 200 horsepower in the '90s while getting 16 MPGs can make 400 horsepower now while getting 23 combined MPG. The age-old adage that "there's no replacement for displacement" is no longer true, as forced induction has decoupled engine displacement from power and fuel efficiency.
+Another interesting plot point in this story can be made about the last decade in the combined plot shown above: while average engine displacement decreased rapidly, the rate of growth in fuel efficiency grew even more quickly. The inverse relationship between fuel efficiency and MPG were no longer 1:1, as the average displacement in 2015 was similar to that in 1990, yet the average fuel efficiency was nearly double. Here is where our remaining plot comes into play; the increase in popularity of forced-induction systems did not die down alongside high-displacement engines.
+
+```{r}
+print(fi_plot)
+```
+
+As average displacement fell rapidly, turbos and supers became ubiquitous, with companies using forced induction to make up for what would have been power loss from reduced engine size. A 2.4-liter engine can now achieve upwards of 30 miles per gallon instead of 18-20 by incorporating a turbocharger. A 3.0-liter engine that made 200 horsepower in the '90s while getting 16 MPGs can make 400 horsepower now while getting 23 combined MPG. The age-old adage that "there's no replacement for displacement" is no longer true, as forced induction has decoupled engine displacement from power and fuel efficiency.
+
+![No replacement for displacement meme.](https://i.imgflip.com/zcuo1.jpg)
 
 ### Principles of data visualization
 
 Using ggplot and dplyr, a collection of raw data was reformatted and visualized with relative ease. The principles of data visualization were used to create graphics that demonstrate clear relationships. Plots utilized minimal styling, entirely 2-dimensional representation, and clear labeling to make the visualizations as useful as possible. Perception was considered when employing RColorBrewer to select colors that would clearly distinguish one plot from the next, and repetition of those colors in the individual and combined plots relate the like datasets. The combined plot intentionally removes y-axis labels and grid lines to deter the viewer from perceiving alignment of the plots to the grid lines as equating the units of the two quantities.
+
+In re-using the original analysis for a final project, best practices were employed to complete revisions. Changes included:
+
+- Storing plots to variables to more easily call them in the analysis section
+- Plotting data closer to the relevant sections in the analysis portion
+- Adding captions to plots that could benefit from them
+- Adding links to helpful external resources that corroborate some of the claims made regarding historical context
+- Adding a little humor using a car-bro meme
+- Making the story of forced induction advancements a bit clearer through better organization
