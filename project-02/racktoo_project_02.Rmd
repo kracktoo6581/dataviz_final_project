@@ -111,7 +111,7 @@ ggplot(data = atlWeather, mapping = aes(x = cloudCover, y = uvIndex)) +
   geom_smooth(method = "lm", formula = "y ~ x") +
   theme_minimal() +
   labs(x = "Cloud cover (%)", y = "Recorded UV index")
-
+ggsave(filename = "../figures/cloud_uv.jpg")
 ```
 
 To view the coefficients of the model created, the summary() function was used.

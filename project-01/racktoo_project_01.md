@@ -159,6 +159,14 @@ print(combined_mpg_and_disp)
 
 ![](racktoo_project_01_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
+```r
+ggsave(filename = "../figures/combined_mpg_and_disp.jpg")
+```
+
+```
+## Saving 7 x 5 in image
+```
+
 
 In this plot, we see that [engine displacement was typically inversely proportional to fuel efficiency](https://themotorguy.com/the-importance-of-engine-displacement-in-vehicle-performance/). During the '80s and '90s, for instance, a growing desire for faster, more powerful vehicles saw a significant decline in MPG ratings while larger, higher-displacement engines were produced. 
 

@@ -79,6 +79,7 @@ ggplot(data = tpa_clean) +
                kernel="optcosine",
                fill = "darkgray") +
   xlim(50,95) +
+  labs(x = "Maximum temperature") +
   theme_minimal()
 ```
 
@@ -123,8 +124,7 @@ ggplot(data = tpa_clean) +
   scale_fill_viridis_d(option = "plasma") +
   xlim(50, 100) +
   theme_minimal() +
-  labs(x = "Maximum temperatures", y = NULL) +
-  theme(legend.position = "none")
+  labs(x = "Maximum temperature (in Fahrenheit degrees)", y = NULL)
 ```
 
 
@@ -147,6 +147,7 @@ ggplot(data = tpa_part_e) +
   theme_minimal() +
   theme(legend.position = "none",
         axis.text.x = element_text(size = 7))
+ggsave(filename = "../figures/rainydays.jpg")
 ```
 
 

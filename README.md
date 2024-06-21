@@ -1,8 +1,8 @@
 # Data Visualization and Reproducible Research
 
-> Firstname Lastname. 
+> Kevin Racktoo. 
 
-Learn more about me in my [GitHub profile page](https://github.com/reiminer). 
+Learn more about me in my [GitHub profile page](https://github.com/kracktoo6581). 
 
 
 The following is a sample of products created during the _"Data Visualization and Reproducible Research"_ course.
@@ -10,7 +10,7 @@ The following is a sample of products created during the _"Data Visualization an
 
 ## Project 01
 
-In the `project_01/` folder you can find... _[add short description of your revised project here]_
+In the `project_01/` folder you can find an exploration of the relationship between forced induction systems (turbochargers and superchargers), engine displacement, and fuel efficiency in cars over time. The visualized data is connected to historical events to provide context for the most pronounced changes that occurred, with links to articles providing further explanation of those events. My favorite of the charts created is the Combined MPG and Displacement visualization that indicates some key moments when displacement began to lose its direct link to fuel efficiency. 
 
 **Sample data visualization:** 
 
@@ -20,9 +20,19 @@ _[include your favorite visualization from this project here]_
 
 ## Project 02
 
-In this project, I explored ... _[short description of your revised project goes here]_ Find the code and report in the `project_02/` folder.
+In this project, I explored three sets of data:
+
+- babynames
+- Florida_Lakes
+- atl-weather
+
+Visualizations were created using each of these sets of data to practice the data visualization techniques learned throughout the course.
+
+Find the code and report in the `project_02/` folder.
 
 **Sample data visualization:** 
+
+My favorite visualization was one that overlayed a model showing the relation between UV index and cloud cover, indicating that UV exposure does not fall off as quickly as would be expected as cloud cover increases.
 
 _[include your favorite visualization from this project here]_
 <img src="https://raw.githubusercontent.com/reisanar/dataviz_final_project/main/figures/fl_higher_ed.png" width="80%" height="80%">
@@ -32,7 +42,7 @@ _[include your favorite visualization from this project here]_
 
 ## Project 03
 
-In this project, I explored ... _[short description of the data visualizations you for this part of the project produced goes here]_
+In this project, I explored some more complex techniques for producing data visualizations by attempting to replicate visualizations that were provided and by producing a few originals. My favorite of these was the "Rainy Days" plot showing how the number of rainy days changed each month as the seasons passed.
 
 **Sample data visualization:** 
 
@@ -42,4 +52,6 @@ _[include your favorite visualization from this project here]_
 
 ### Moving Forward
 
-_Please add here a short reflection on what you learned and what you plan to continue exploring in terms of data visualization, data storytelling, reproducible research, and/or related topics._
+I learned much about the techniques involved in creating compelling arguments using data visualizations. While there are many tools available for use, I'm beginning to understand how much psychology is involved in the creation of effective visualizations, so usage of those tools is not always as easy as it seems.
+
+I intend to continue practicing the techniques I learned throughout the course, and will certainly be using R, ggplot, and plotly for future academic and professional work, as their collective abilities to rapidly produce aesthetically-pleasing and communicative visualizations is remarkable.

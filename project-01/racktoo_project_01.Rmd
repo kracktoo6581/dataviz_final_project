@@ -144,6 +144,7 @@ We can overlay the average displacement plot upon the MPG plot to visualize a re
 
 ```{r}
 print(combined_mpg_and_disp)
+ggsave(filename = "../figures/combined_mpg_and_disp.jpg")
 ```
 
 
