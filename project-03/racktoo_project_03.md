@@ -1,5 +1,6 @@
 ---
 title: "Data Visualization for Exploratory Data Analysis"
+author: "Kevin Racktoo `kracktoo6581@floridapoly.edu`"
 output: 
   html_document:
     keep_md: true
@@ -20,6 +21,7 @@ Using the dataset obtained from FSU's [Florida Climate Center](https://climatece
 
 ```r
 library(tidyverse)
+library(viridis)
 weather_tpa <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/tpa_weather_2022.csv")
 # random sample 
 sample_n(weather_tpa, 4)
@@ -29,10 +31,10 @@ sample_n(weather_tpa, 4)
 ## # A tibble: 4 × 7
 ##    year month   day precipitation max_temp min_temp ave_temp
 ##   <dbl> <dbl> <dbl>         <dbl>    <dbl>    <dbl>    <dbl>
-## 1  2022     6    18          0          98       81     89.5
-## 2  2022     4     3          0          80       68     74  
-## 3  2022    12    20          0.11       67       58     62.5
-## 4  2022     5    22          0          96       74     85
+## 1  2022     8    11          0          90       79     84.5
+## 2  2022     2    27          0          82       69     75.5
+## 3  2022     9    19          0.02       90       77     83.5
+## 4  2022     9    14          0.06       87       76     81.5
 ```
 
 See https://www.reisanar.com/slides/relationships-models#10 for a reminder on how to use this type of dataset with the `lubridate` package for dates and times (example included in the slides uses data from 2016).
@@ -42,6 +44,44 @@ Using the 2022 data:
 (a) Create a plot like the one below:
 
 <img src="https://github.com/reisanar/figs/raw/master/tpa_max_temps_facet.png" width="80%" style="display: block; margin: auto;" />
+
+We'll clean the data using the same technique as the slides. However, we will convert the month column to a factor to preserve the order of the months while replacing the numeric values with the month names.
+
+```r
+monthNames <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+tpa_clean <- weather_tpa %>%
+  mutate(max_temp = as.double(max_temp),
+         min_temp = as.double(min_temp),
+         precipitation = as.double(precipitation),
+         month = factor(month, levels = 1:12, labels = monthNames))
+```
+
+Now we can create the plots. We'll use faceting (by month) to create subplots for each month. The binwidth will be '3' as indicated by the instructions. X and Y axis limits are adjusted to match those shown in the image. "theme_light()" most closely resembles the image, and scale_fill_viridis_d() colors the plots with the viridis scale.
+
+```r
+bigPlot <- ggplot(data = tpa_clean, aes(x = max_temp, fill = month)) +
+  geom_histogram(binwidth = 3) +
+  facet_wrap(~ month) +
+  scale_fill_viridis_d() +
+  xlim(55, 95) +
+  ylim(0, 20) +
+  theme_light() +
+  labs(x = "Maximum temperatures", y = "Number of Days") +
+  theme(legend.position = "none")
+
+print(bigPlot)
+```
+
+```
+## Warning: Removed 15 rows containing non-finite values (`stat_bin()`).
+```
+
+```
+## Warning: Removed 24 rows containing missing values (`geom_bar()`).
+```
+
+![](racktoo_project_03_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 Hint: the option `binwidth = 3` was used with the `geom_histogram()` function.
 

@@ -1,5 +1,6 @@
 ---
 title: "Data Visualization for Exploratory Data Analysis"
+author: "Kevin Racktoo `kracktoo6581@floridapoly.edu`"
 output: 
   html_document:
     keep_md: true
@@ -19,6 +20,7 @@ Using the dataset obtained from FSU's [Florida Climate Center](https://climatece
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(viridis)
 weather_tpa <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/tpa_weather_2022.csv")
 # random sample 
 sample_n(weather_tpa, 4)
@@ -32,6 +34,32 @@ Using the 2022 data:
 
 ```{r, echo = FALSE, out.width="80%", fig.align='center'}
 knitr::include_graphics("https://github.com/reisanar/figs/raw/master/tpa_max_temps_facet.png")
+```
+
+We'll clean the data using the same technique as the slides. However, we will convert the month column to a factor to preserve the order of the months while replacing the numeric values with the month names.
+```{r}
+monthNames <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+tpa_clean <- weather_tpa %>%
+  mutate(max_temp = as.double(max_temp),
+         min_temp = as.double(min_temp),
+         precipitation = as.double(precipitation),
+         month = factor(month, levels = 1:12, labels = monthNames))
+```
+
+Now we can create the plots. We'll use faceting (by month) to create subplots for each month. The binwidth will be '3' as indicated by the instructions. X and Y axis limits are adjusted to match those shown in the image. "theme_light()" most closely resembles the image, and scale_fill_viridis_d() colors the plots with the viridis scale.
+```{r}
+bigPlot <- ggplot(data = tpa_clean, aes(x = max_temp, fill = month)) +
+  geom_histogram(binwidth = 3) +
+  facet_wrap(~ month) +
+  scale_fill_viridis_d() +
+  xlim(55, 95) +
+  ylim(0, 20) +
+  theme_light() +
+  labs(x = "Maximum temperatures", y = "Number of Days") +
+  theme(legend.position = "none")
+
+print(bigPlot)
 ```
 
 Hint: the option `binwidth = 3` was used with the `geom_histogram()` function.
