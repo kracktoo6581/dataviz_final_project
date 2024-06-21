@@ -14,8 +14,7 @@ In the `project_01/` folder you can find an exploration of the relationship betw
 
 **Sample data visualization:** 
 
-_[include your favorite visualization from this project here]_
-<img src="https://github.com/reisanar/figs/raw/master/echarts.png" width="70%" height="70%">
+<img src="https://raw.githubusercontent.com/kracktoo6581/dataviz_final_project/main/figures/combined_mpg_and_disp.jpg" width="70%" height="70%">
 
 
 ## Project 02
@@ -34,8 +33,7 @@ Find the code and report in the `project_02/` folder.
 
 My favorite visualization was one that overlayed a model showing the relation between UV index and cloud cover, indicating that UV exposure does not fall off as quickly as would be expected as cloud cover increases.
 
-_[include your favorite visualization from this project here]_
-<img src="https://raw.githubusercontent.com/reisanar/dataviz_final_project/main/figures/fl_higher_ed.png" width="80%" height="80%">
+<img src="https://raw.githubusercontent.com/kracktoo6581/dataviz_final_project/main/figures/cloud_uv.jpg" width="80%" height="80%">
 
 (you can place your figures in the `figures/` folder and use the `![](path_to_picture)` option to add the pictures here)
 
@@ -46,8 +44,7 @@ In this project, I explored some more complex techniques for producing data visu
 
 **Sample data visualization:** 
 
-_[include your favorite visualization from this project here]_
-<img src="https://github.com/reisanar/figs/raw/master/concrete_density.png" width="80%" height="80%">
+<img src="https://raw.githubusercontent.com/kracktoo6581/dataviz_final_project/main/figures/rainydays.jpg" width="80%" height="80%">
 
 
 ### Moving Forward
